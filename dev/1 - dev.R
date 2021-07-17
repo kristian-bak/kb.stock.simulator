@@ -8,6 +8,9 @@ devtools::load_all()
 ## Check
 devtools::check()
 
+## Add package
+usethis::use_package("quantmod")
+
 ## Status on packages
 renv::status()
 
