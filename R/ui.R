@@ -2,14 +2,14 @@
 #' @export
 #'
 ui_tab1 <- function() {
+  df_companies <- readxl::read_excel("dev/appdata/companies.xlsx")
   tabItem(tabName = "Stock_simulator",
-          h2("Simulator"),
           fluidRow(
             column(2,
               selectInput(
                  inputId = "select_stock",
                  label = "Select stock",
-                 choices = c("RIOT", "DANSKE.CO")
+                 choices = df_companies %>% dplyr::select(Company) %>% dplyr::pull()
                  )
               ),
             column(2,
@@ -51,10 +51,18 @@ ui_tab1 <- function() {
               style = "margin-top: 24px"
             )
           ),
-          br(),
-          plotly::plotlyOutput("stock_data"),
-          plotly::plotlyOutput("MACD"),
-          plotly::plotlyOutput("RSI"),
+          fluidRow(
+            column(6,
+                   plotly::plotlyOutput("stock_data", height = "300px")),
+            column(4,
+                   dataTableOutput("table_stats")),
+            column(2,
+                   actionButton(inputId = "go_trend_line", label = "Create trend line"))
+          ),
+          fluidRow(
+            column(6, plotly::plotlyOutput("MACD", height = "200px")),
+            column(6, plotly::plotlyOutput("RSI", height = "200px"))
+          ),
           fluidRow(
             column(1,
                    actionButton(
@@ -71,6 +79,11 @@ ui_tab1 <- function() {
                      inputId = "go_sell",
                      label = "Sell"),
                    style = "margin-top: 24px"),
+            column(2,
+                   textInput(
+                     inputId = "text_status",
+                     label = "Status",
+                     value = NA)),
             column(1,
                    actionButton(
                      inputId = "go_save",
@@ -81,15 +94,13 @@ ui_tab1 <- function() {
                      inputId = "go_clear_everything",
                      label = "Clear everything"),
                    style = "margin-top: 24px"),
-            column(2,
-                   textInput(
-                     inputId = "text_status",
-                     label = "Status",
-                     value = NA)
-                   )
           ),
-          dataTableOutput("table_stats"),
-          dataTableOutput("table_transaction")
+          fluidRow(
+            conditionalPanel("input.go_buy > 0",
+                             h4("Transactions", style = "margin-left: 12px")),
+            column(6,
+                   dataTableOutput("table_transaction"))
+          )
   )
 }
 

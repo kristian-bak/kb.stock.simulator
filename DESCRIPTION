@@ -15,6 +15,9 @@ Imports:
     DT,
     magrittr,
     plotly,
+    purrr,
     quantmod,
+    readxl,
     shiny,
-    shinydashboard
+    shinydashboard,
+    TTR

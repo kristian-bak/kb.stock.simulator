@@ -15,6 +15,9 @@ usethis::use_package("shiny")
 usethis::use_package("shinydashboard")
 usethis::use_package("plotly")
 usethis::use_package("DT")
+usethis::use_package("readxl")
+usethis::use_package("purrr")
+usethis::use_package("TTR")
 
 ## Status on packages
 renv::status()

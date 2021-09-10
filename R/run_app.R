@@ -34,8 +34,15 @@ run_app <- function() {
 
     observeEvent(input$go_load, {
 
+      df_companies <- readxl::read_excel("dev/appdata/companies.xlsx")
+
+      str_ticker <- df_companies %>%
+        filter(input$select_stock == Company) %>%
+        select(Ticker) %>%
+        pull()
+
       react_var$all_data <- react_var$plot_data <- load_data(
-        ticker = input$select_stock,
+        ticker = str_ticker,
         from = input$date_from
       )
 
@@ -65,7 +72,8 @@ run_app <- function() {
       MA <- TTR::SMA(x = react_var$plot_data$Close, n = 20)
 
       fig <- plotly::plot_ly(data = react_var$plot_data, x = ~Date, type = "candlestick",
-                             open = ~Open, close = ~Close, low = ~Low, high = ~High) %>%
+                             open = ~Open, close = ~Close, low = ~Low, high = ~High,
+                             source = "stock_data") %>%
         add_lines(x = react_var$plot_data$Date, y = MA, inherit = FALSE,
                   line = list(color = "black"), name = "MA20") %>%
         layout(title = "Candlestick Chart",
@@ -116,7 +124,24 @@ run_app <- function() {
 
       }
 
-      return(fig)
+      fig
+
+    })
+
+    observeEvent(input$go_trend_line, {
+
+      showNotification(
+        ui = "Now click on the candlestick where trend line should start",
+        type = "message")
+
+    })
+
+    observe({
+
+      req(react_var$plot_data)
+      click_data <- event_data("plotly_click", source = "stock_data")
+
+      browser()
 
     })
 
@@ -192,7 +217,8 @@ run_app <- function() {
       price_buy <- plot_data %>%
         slice(n()) %>%
         select(Close) %>%
-        pull()
+        pull() %>%
+        round(4)
 
       df <- data.frame(Date = today,
                        Event = "buy",
@@ -225,7 +251,8 @@ run_app <- function() {
       price_buy <- transaction_data %>%
         filter(Event == "buy") %>%
         select(Price) %>%
-        pull()
+        pull() %>%
+        round(4)
 
       price_sell <- data_today %>%
         select(Close) %>%
