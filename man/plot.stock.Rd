@@ -4,10 +4,15 @@
 \alias{plot.stock}
 \title{Plotting the trades}
 \usage{
-\method{plot}{stock}(obj)
+\method{plot}{stock}(obj, add_indicator = TRUE, ...)
 }
 \arguments{
 \item{obj}{object of class stock which is obtained from `get_performance`}
+
+\item{add_indicator}{logical specifying whether or not the indicator should be plotted as well.
+Default is TRUE.}
+
+\item{...}{additional parameters allowing to change legend on plot}
 }
 \description{
 Plotting the trades

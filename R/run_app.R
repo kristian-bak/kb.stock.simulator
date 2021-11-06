@@ -37,9 +37,8 @@ run_app <- function() {
       df_companies <- readxl::read_excel("dev/appdata/companies.xlsx")
 
       str_ticker <- df_companies %>%
-        filter(input$select_stock == Company) %>%
-        select(Ticker) %>%
-        pull()
+        dplyr::filter(input$select_stock == Company) %>%
+        dplyr::pull(Ticker)
 
       react_var$all_data <- react_var$plot_data <- load_data(
         ticker = str_ticker,
@@ -84,10 +83,10 @@ run_app <- function() {
       if (nrow(react_var$transaction_data) > 0) {
 
         buy_data <- react_var$transaction_data %>%
-          filter(Event == "buy")
+          dplyr::filter(Event == "buy")
 
         sell_data <- react_var$transaction_data %>%
-          filter(Event == "sell")
+          dplyr::filter(Event == "sell")
 
         if (nrow(buy_data) > 0) {
 
@@ -193,9 +192,8 @@ run_app <- function() {
 
     get_date <- reactive({
       react_var$plot_data %>%
-        slice(n()) %>%
-        select(Date) %>%
-        pull()
+        dplyr::slice(n()) %>%
+        dplyr::pull(Date)
     })
 
     observeEvent(input$go_buy, {
@@ -215,9 +213,8 @@ run_app <- function() {
       today <- get_date()
 
       price_buy <- plot_data %>%
-        slice(n()) %>%
-        select(Close) %>%
-        pull() %>%
+        dplyr::slice(n()) %>%
+        dplyr::pull(Close) %>%
         round(4)
 
       df <- data.frame(Date = today,
@@ -246,17 +243,15 @@ run_app <- function() {
       today <- get_date()
 
       data_today <- plot_data %>%
-        slice(n())
+        dplyr::slice(n())
 
       price_buy <- transaction_data %>%
-        filter(Event == "buy") %>%
-        select(Price) %>%
-        pull() %>%
+        dplyr::filter(Event == "buy") %>%
+        dplyr::pull(Price) %>%
         round(4)
 
       price_sell <- data_today %>%
-        select(Close) %>%
-        pull()
+        dplyr::pull(Close)
 
       afkast <- round(100 * ((price_sell - price_buy) / price_buy), 2)
 
@@ -283,9 +278,8 @@ run_app <- function() {
         react_var$status <- "Staying away"
       } else {
         last_event <- react_var$transaction_data %>%
-          filter(Date == max(Date)) %>%
-          select(Event) %>%
-          pull()
+          dplyr::filter(Date == max(Date)) %>%
+          dplyr::pull(Event)
 
         if (last_event == "buy") {
           react_var$status <- "Holding"
@@ -305,10 +299,10 @@ run_app <- function() {
       }
 
       data_start_day <- react_var$all_data %>%
-        slice(input$num_training_days)
+        dplyr::slice(input$num_training_days)
 
       data_today <- react_var$all_data %>%
-        filter(Date == get_date())
+        dplyr::filter(Date == get_date())
 
       hodl_return <- 100 * ((data_today$Close - data_start_day$Close) / data_start_day$Close)
       hodl_return <- paste0(round(hodl_return, 2), " %")
@@ -327,16 +321,14 @@ run_app <- function() {
 
       ## If current return is unrealized, it will be max date and have Return = NA
       current_return <- transaction_data %>%
-        filter(Date == max(Date) & is.na(Return)) %>%
-        mutate(Return = 100 * ((data_today$Close - Price) / Price) %>% round(3)) %>%
-        select(Return) %>%
-        pull()
+        dplyr::filter(Date == max(Date) & is.na(Return)) %>%
+        dplyr::mutate(Return = 100 * ((data_today$Close - Price) / Price) %>% round(3)) %>%
+        dplyr::pull(Return)
 
       ## My return calculates the return among realized trades.
       my_return <- transaction_data %>%
-        filter(!is.na(Return)) %>%
-        select(Return) %>%
-        pull()
+        dplyr::filter(!is.na(Return)) %>%
+        dplyr::select(Return)
 
       ## My return combines realized and unrealized trades.
       my_return <- c(my_return, current_return)
@@ -363,7 +355,7 @@ run_app <- function() {
       react_var$table_stats <- data.frame()
 
       react_var$plot_data <- react_var$plot_data %>%
-        slice(1:input$num_training_days)
+        dplyr::slice(1:input$num_training_days)
 
     })
 

@@ -10,6 +10,14 @@ get_events <- function(data, strategy) {
     dplyr::mutate(buy_id = cumsum_with_reset(get(buy_var)),
                   sell_id = cumsum_with_reset(get(sell_var)))
 
+  no_buy_event <- data %>%
+    dplyr::select(buy_id) %>%
+    sum() == 0
+
+  if (no_buy_event) {
+    stop("The strategy found no buy signals. Adjust inputs to obtain buy signals")
+  }
+
   data_event <- data %>%
     dplyr::filter(buy_id == 1 | sell_id == 1) %>%
     dplyr::mutate(buy_day = cumsum_with_reset(buy_id),
@@ -28,6 +36,9 @@ get_events <- function(data, strategy) {
 
   data_event <- data_event %>%
     add_hodler(data = data)
+
+  data_event <- data_event %>%
+    dplyr::select(-c("buy_id", "sell_id"))
 
   return(data_event)
 

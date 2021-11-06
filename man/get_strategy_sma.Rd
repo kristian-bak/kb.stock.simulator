@@ -4,11 +4,23 @@
 \alias{get_strategy_sma}
 \title{Get strategy SMA}
 \usage{
-get_strategy_sma(data)
+get_strategy_sma(data, eps_buy = 1, eps_sell = 1)
 }
 \arguments{
 \item{data}{stock data}
+
+\item{eps_buy}{numeric value specifying how much larger SMA should be than close stock price
+before event is triggered. `eps` = 1 corresponds to buy condition of SMA > Close}
+
+\item{eps_sell}{numeric valuing specifying when to sell in percentage deviation}
 }
 \description{
 Get strategy SMA
+}
+\details{
+`eps` = 1.02 means SMA should be 2 % larger than the closing price before
+the strategy indicates a buy. Similarly `eps` = 1.02 means SMA should be 2 % smaller
+than the closing price before selling. Larger values of `eps` leads to fewer buy/sell
+signals. If inputs are selected such that no buy signals is obtained, an error
+meesage is returned.
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/utility.R
 \name{price_change}
 \alias{price_change}
-\title{Daily price change in %}
+\title{Daily price change in percent}
 \usage{
 price_change(x, digits = 5)
 }
@@ -10,8 +10,8 @@ price_change(x, digits = 5)
 \item{x}{stock price}
 }
 \value{
-A numerical vector with prince changes in %
+A numerical vector with prince changes in percent
 }
 \description{
-Daily price change in %
+Daily price change in percent
 }

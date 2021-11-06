@@ -16,11 +16,11 @@ catch_error <- function(expr) {
   list(value = value, warning = warn, error = err)
 }
 
-#' Daily price change in %
+#' Daily price change in percent
 #' @param x stock price
-#' @return A numerical vector with prince changes in %
+#' @return A numerical vector with prince changes in percent
 #' @export
-
+#'
 price_change <- function(x, digits = 5) {
   x_lag <- c(NA, x)
   x <- c(x, NA)
