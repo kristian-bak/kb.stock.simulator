@@ -5,6 +5,9 @@ devtools::document()
 ## Load
 devtools::load_all()
 
+## Test
+devtools::test()
+
 ## Check
 devtools::check()
 
@@ -19,6 +22,10 @@ usethis::use_package("readxl")
 usethis::use_package("purrr")
 usethis::use_package("TTR")
 
+## Add C++
+usethis::use_rcpp()
+Rcpp::compileAttributes()
+
 ## Status on packages
 renv::status()
 
@@ -31,6 +38,9 @@ usethis::use_pipe()
 ## Add license
 usethis::use_mit_license()
 
+## Add test:
+usethis::use_test("load_data")
+
 devtools::install()
 
 devtools::build()
@@ -38,3 +48,5 @@ devtools::build()
 ## Run app:
 run_app()
 
+## R start R session before running test coverage
+devtools::test_coverage()

@@ -17,3 +17,11 @@ A data.frame
 \description{
 Load data from Yahoo.
 }
+\details{
+Davs
+}
+\examples{
+# Load NOVO data since 2021-01-01
+data <- load_data(ticker = "NOVO-B.CO", from = "2021-01-01")
+data
+}

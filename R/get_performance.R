@@ -6,6 +6,9 @@
 #'
 get_performance <- function(data, strategy = "SMA", ...) {
 
+  data <- data %>%
+    dplyr::filter(!is.na(Close))
+
   data <- get_strategy(data = data, strategy = strategy, ...)
 
   data_event <- get_events(data = data, strategy = strategy)

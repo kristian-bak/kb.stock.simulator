@@ -4,7 +4,7 @@
 \alias{get_yield}
 \title{Get yield}
 \usage{
-get_yield(data, data_event, digits = 3)
+get_yield(data, data_event, digits = 2)
 }
 \arguments{
 \item{data}{stock data}

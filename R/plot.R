@@ -1,8 +1,11 @@
 #' Plotting the trades
 #' @param obj object of class stock which is obtained from `get_performance`
+#' @param add_indicator logical specifying whether or not the indicator should be plotted as well.
+#' Default is TRUE.
+#' @param ... additional parameters allowing to change legend on plot
 #' @export
 
-plot.stock <- function(obj) {
+plot.stock <- function(obj, add_indicator = TRUE, ...) {
 
   get_date <- function(data, n) {
     data %>%
@@ -14,7 +17,7 @@ plot.stock <- function(obj) {
   data <- obj$data
   data_event <- obj$data_event
 
-  str_text1 <- paste0("My return: ", obj$my_yield, " %")
+  str_text1 <- paste0("My return: ", obj$my_yield$Total_yield, " %")
   str_text2 <- paste0("Hodl return: ", obj$hodl_yield, " %")
   str_text <- paste0(c(str_text1, "<br>", str_text2), collapse = " ")
 
@@ -26,15 +29,6 @@ plot.stock <- function(obj) {
             y = y_val,
             text = str_text,
             showarrow = FALSE)
-
-  get_event_info <- function(data_event, var_event, var_info) {
-
-    data_event %>%
-      dplyr::filter(get(var_event) == 1) %>%
-      dplyr::select(var_info) %>%
-      dplyr::pull()
-
-  }
 
   buy_days <- get_event_info(
     data_event = data_event,
@@ -60,31 +54,56 @@ plot.stock <- function(obj) {
     var_info = "Close"
   )
 
+  str_indicator <- get_indicator(data = data)
+  str_candlestick <- get_candlestick_legend(...)
+
   plotly::plot_ly(data = data, x = ~Date, type = "candlestick",
-                  open = ~Open, close = ~Close, low = ~Low, high = ~High) %>%
-    plotly::add_annotations(x = buy_days,
-                            y = buy_values,
-                            arrowcolor = 'black',
-                            xref = "x",
-                            yref = "y",
-                            axref = "x",
-                            ayref = "y",
-                            text = "Buy",
-                            showarrow = TRUE,
-                            ax = buy_days,
-                            ay = buy_values * 0.9) %>%
-    plotly::add_annotations(x = sell_days,
-                            y = sell_values,
-                            arrowcolor = 'black',
-                            xref = "x",
-                            yref = "y",
-                            axref = "x",
-                            ayref = "y",
-                            text = "Sell",
-                            showarrow = TRUE,
-                            ax = sell_days,
-                            ay = sell_values * 0.9) %>%
+                  open = ~Open, close = ~Close, low = ~Low, high = ~High, name = str_candlestick) %>%
+    get_plot_info(event = "buy", event_days = buy_days, event_values = buy_values) %>%
+    get_plot_info(event = "sell", event_days = sell_days, event_values = sell_values) %>%
+    plotly::add_lines(data = data, x = ~Date, y = ~get(str_indicator), name = str_indicator, inherit = FALSE) %>%
     plotly::layout(xaxis = list(rangeslider = list(visible = FALSE)),
+                   yaxis = list(title = "Stock price"),
                    annotations = a)
+
+}
+
+#' Plot prediction
+#' @param obj model object
+#' @param data data.frame used to plot and calculate predictions based on
+#' @return list with plot and performance stats
+#' @export
+plot_prediction <- function(obj, data) {
+
+  plot_data <- data %>%
+    dplyr::mutate(p = predict(obj, newdata = ., type = "response"),
+                  abs_error = abs(p - Close),
+                  rel_error = 100 * (abs(p - Close) / Close))
+
+  p <- plotly::plot_ly(
+    data = plot_data,
+    x = ~Date,
+    y = ~Close,
+    type = "scatter",
+    mode = "lines",
+    name = "Stock") %>%
+    plotly::add_trace(y = ~p, name = "Prediction")
+
+  num_cor <- cor(plot_data$Close, plot_data$p, use = "na")
+
+  adj_r_squared <- summary(obj)$adj.r.squared
+
+  df_stats <-  plot_data %>%
+    dplyr::summarise(MAE = mean(abs_error, na.rm = TRUE),
+                     MARE = mean(rel_error, na.rm = TRUE))
+
+  df_stats <- cbind(df_stats,
+                    dplyr::tibble(cor = num_cor,
+                                  adj_r_squared = adj_r_squared))
+
+  out <- list("plot" = p,
+              "stats" = df_stats)
+
+  return(out)
 
 }
